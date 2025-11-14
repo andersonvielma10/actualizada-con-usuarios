@@ -1399,7 +1399,7 @@ export default function App() {
       await setDoc(docRef, { routes: routesToSave, lastUpdated: now });
       setLastUpdated(now); 
       setRoutes(routesToSave); 
-      setAdminRoutes(routesToSave); 
+      // setAdminRoutes(routesToSave); // No necesitamos esto, el effect [routes, isAdmin] lo hará si no somos admin
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (e) {
