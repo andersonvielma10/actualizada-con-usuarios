@@ -1223,7 +1223,7 @@ export default function App() {
     return merged;
   };
 
-  // --- LÓGICA DE AUTH Y DATOS ---
+  // --- LÓGICA DE AUTH Y DATOS (CORREGIDA) ---
   useEffect(() => {
     let unsubData = () => {};
     let isMounted = true;
@@ -1255,10 +1255,12 @@ export default function App() {
     const signInAndLoadData = async () => {
       try {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-           await signInWithCustomToken(auth, __initial_auth_token); // <-- CORREGIDO
+           await signInWithCustomToken(auth, __initial_auth_token);
         } else {
           if (!auth.currentUser) {
             await signInAnonymously(auth);
+          }
+        }
         
         const docRef = doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, DOC_ID);
         unsubData = onSnapshot(docRef, (snap) => {
@@ -1268,6 +1270,7 @@ export default function App() {
             const fullRoutes = mergeRoutes(data.routes);
             setRoutes(fullRoutes);
             setDbSource('live');
+            // NO actualizamos adminRoutes aquí si el admin está logueado
             // if (!isAdmin) setAdminRoutes(fullRoutes); // <-- BUG ELIMINADO
             if (data.lastUpdated) setLastUpdated(data.lastUpdated);
           } else {
@@ -1317,6 +1320,7 @@ export default function App() {
     }
   }, [routes, isAdmin]);
 
+
   useEffect(() => {
     if (selectedDestinatario && selectedTo !== selectedDestinatario.country) {
       setSelectedDestinatario(null);
@@ -1364,7 +1368,7 @@ export default function App() {
       setShowPin(false);
       setPin('');
       setSaveSuccess(false);
-      setAdminRoutes([...routes]); 
+      setAdminRoutes([...routes]); // Copia las tasas actuales al editor del admin
     } else {
       const input = document.getElementById('pin-input');
       if(input) {
