@@ -4,7 +4,7 @@ import {
   ArrowRightLeft, Lock, Save, Phone, Search, Globe, Clock, CheckCircle2, AlertCircle, RotateCw, Wifi, WifiOff, CloudCog,
   User, Users, History, LogOut, Plus, X, ArrowLeft, Trash2, Banknote, Landmark, Smartphone, Hash, Mail, FileText, ChevronDown,
   Edit2, UserCheck, KeyRound, Camera, UserCircle, UploadCloud,
-  Send, Package, PackageCheck // Iconos para órdenes
+  Send, Package, PackageCheck, Copy, Eye, EyeOff, Paperclip, Check, Upload // Iconos para órdenes
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 // Importamos las nuevas funciones de Autenticación de Clientes
@@ -19,7 +19,7 @@ import {
   addDoc, collection, query, deleteDoc, updateDoc,
   where, orderBy // Para consultas de historial
 } from 'firebase/firestore';
-// Importamos Firebase Storage (para fotos)
+// Importamos Firebase Storage (para fotos y captures)
 import { 
   getStorage, ref, uploadBytesResumable, getDownloadURL 
 } from "firebase/storage";
@@ -43,7 +43,7 @@ const firebaseConfig = {
 // PASO 2: DEFINE TU PIN DE ADMINISTRADOR
 // (El que usas para editar las tasas)
 // ------------------------------------------------------------------
-const ADMIN_PIN = "1505"; // <--- ¡¡CAMBIA ESTO POR TU PIN!!
+const ADMIN_PIN = "1234"; // <--- ¡¡CAMBIA ESTO POR TU PIN!!
 // ------------------------------------------------------------------
 
 // Inicialización de Firebase (SIN DUPLICADOS)
@@ -54,6 +54,38 @@ const storage = getStorage(app); // Inicializamos Storage
 
 // CONFIGURACIÓN (Usa un ID único para tu app)
 const appId = "cripto_cambios_web_prod"; // ID único para tu app en producción
+
+// --- NUEVO: Cuentas de tu Empresa ---
+const COMPANY_ACCOUNTS = {
+  PE: [
+    { name: 'BCP Soles', details: '191-12345678-0-00', copyValue: '19112345678000' },
+    { name: 'Yape', details: '955 555 497', copyValue: '955555497' },
+    { name: 'Plin', details: '955 555 497', copyValue: '955555497' },
+  ],
+  US: [
+    { name: 'Zelle', details: 'info@criptocambioslt.com', copyValue: 'info@criptocambioslt.com' },
+    { name: 'Bank of America', details: '123456789', copyValue: '123456789' },
+  ],
+  CO: [
+    { name: 'Bancolombia Ahorros', details: '123-456789-01', copyValue: '12345678901' },
+    { name: 'Nequi', details: '310 123 4567', copyValue: '3101234567' },
+  ],
+  CL: [
+    { name: 'Banco Estado (Cuenta RUT)', details: '12.345.678-9', copyValue: '123456789' },
+  ],
+  BR: [
+    { name: 'PIX (CNPJ)', details: '12.345.678/0001-99', copyValue: '12345678000199' }
+  ],
+  MX: [
+    { name: 'BBVA CLABE', details: '012 345 67890123456 7', copyValue: '012345678901234567' }
+  ],
+  EC: [
+    { name: 'Pichincha Ahorros', details: '1234567890', copyValue: '1234567890' }
+  ],
+  EU: [
+    { name: 'IBAN', details: 'ES80 1234 5678 9012 3456 7890', copyValue: 'ES8012345678901234567890' }
+  ]
+};
 
 // --- Configuración de Países ---
 const COUNTRIES = [
