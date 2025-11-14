@@ -43,7 +43,7 @@ const firebaseConfig = {
 // PASO 2: DEFINE TU PIN DE ADMINISTRADOR
 // (El que usas para editar las tasas)
 // ------------------------------------------------------------------
-const ADMIN_PIN = "1234"; // <--- ¡¡CAMBIA ESTO POR TU PIN!!
+const ADMIN_PIN = "1505"; // <--- ¡¡CAMBIA ESTO POR TU PIN!!
 // ------------------------------------------------------------------
 
 // Inicialización de Firebase (SIN DUPLICADOS)
