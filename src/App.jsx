@@ -43,7 +43,7 @@ const firebaseConfig = {
 // PASO 2: DEFINE TU PIN DE ADMINISTRADOR
 // (El que usas para editar las tasas)
 // ------------------------------------------------------------------
-const ADMIN_PIN = "1505"; // <--- ¡¡CAMBIA ESTO POR TU PIN!!
+const ADMIN_PIN = "1234"; // <--- ¡¡CAMBIA ESTO POR TU PIN!!
 // ------------------------------------------------------------------
 
 // Inicialización de Firebase (SIN DUPLICADOS)
@@ -1254,11 +1254,11 @@ export default function App() {
 
     const signInAndLoadData = async () => {
       try {
-        // En producción, siempre iniciamos anónimamente
-        // si no hay un usuario ya logueado (cliente).
-        if (!auth.currentUser) {
-          await signInAnonymously(auth);
-        }
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+           await signInWithCustomToken(auth, __initial_auth_token); // <-- CORREGIDO
+        } else {
+          if (!auth.currentUser) {
+            await signInAnonymously(auth);
         
         const docRef = doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, DOC_ID);
         unsubData = onSnapshot(docRef, (snap) => {
@@ -1268,14 +1268,14 @@ export default function App() {
             const fullRoutes = mergeRoutes(data.routes);
             setRoutes(fullRoutes);
             setDbSource('live');
-            if (!isAdmin) setAdminRoutes(fullRoutes);
+            // if (!isAdmin) setAdminRoutes(fullRoutes); // <-- BUG ELIMINADO
             if (data.lastUpdated) setLastUpdated(data.lastUpdated);
           } else {
             const now = new Date().toISOString();
             setDbSource('creating');
             setDoc(docRef, { routes: MASTER_ROUTES, lastUpdated: now });
             setRoutes(MASTER_ROUTES);
-            setAdminRoutes(MASTER_ROUTES);
+            // setAdminRoutes(MASTER_ROUTES); // <-- BUG ELIMINADO
             setLastUpdated(now);
           }
           setLoading(false);
@@ -1284,7 +1284,7 @@ export default function App() {
           if (isMounted) {
             setDbSource('offline');
             setRoutes(MASTER_ROUTES);
-            if(!isAdmin) setAdminRoutes(MASTER_ROUTES);
+            // if(!isAdmin) setAdminRoutes(MASTER_ROUTES); // <-- BUG ELIMINADO
             setLoading(false);
           }
         });
@@ -1306,7 +1306,16 @@ export default function App() {
       unsubData();
       unsubProfile();
     };
-  }, [isAdmin]);
+  }, []); // <-- CORRECCIÓN: Se quitó [isAdmin] de aquí
+
+  // --- NUEVO EFFECT para sincronizar las rutas de admin ---
+  // Se ejecuta solo si el usuario NO es admin, para mantener las
+  // tasas que ve el público y las que ve el admin (antes de loguearse) en sincronía.
+  useEffect(() => {
+    if (!isAdmin) {
+      setAdminRoutes(routes);
+    }
+  }, [routes, isAdmin]);
 
   useEffect(() => {
     if (selectedDestinatario && selectedTo !== selectedDestinatario.country) {
